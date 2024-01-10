@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Stopwatch</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        
+        .stopwatch {
+            margin: 50px auto;
+            width: 200px;
+        }
+        
+        .time {
+            font-size: 36px;
+            border: 2px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        
+        button#start {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        button#pause {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        button#reset {
+            background-color: #008CBA;
+            color: white;
+        }
+        
+        button#lap {
+            background-color: #555555;
+            color: white;
+        }
+        
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+        
+        li {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="stopwatch">
+        <div class="time">00:00:00</div>
+        <button id="start" onclick="startStopwatch()">Start</button>
+        <button id="pause" onclick="pauseStopwatch()" disabled>Pause</button>
+        <button id="reset" onclick="resetStopwatch()">Reset</button>
+        <button id="lap" onclick="recordLap()" disabled>Lap</button>
+        <ul id="lapTimes"></ul>
+    </div>
+
+    <script>
+        let startTime;
+        let interval;
+        let running = false;
+        let laps = [];
+        let lapCounter = 1;
+
+        function startStopwatch() {
+            if (!running) {
+                startTime = Date.now() - (laps.length > 0 ? laps[laps.length - 1].time : 0);
+                interval = setInterval(updateTime, 10);
+                running = true;
+                document.getElementById('start').setAttribute('disabled', 'true');
+                document.getElementById('pause').removeAttribute('disabled');
+                document.getElementById('lap').removeAttribute('disabled');
+            }
+        }
+
+        function pauseStopwatch() {
+            clearInterval(interval);
+            running = false;
+            document.getElementById('start').removeAttribute('disabled');
+            document.getElementById('pause').setAttribute('disabled', 'true');
+            document.getElementById('lap').setAttribute('disabled', 'true');
+        }
+
+        function resetStopwatch() {
+            clearInterval(interval);
+            running = false;
+            document.getElementById('start').removeAttribute('disabled');
+            document.getElementById('pause').setAttribute('disabled', 'true');
+            document.getElementById('lap').setAttribute('disabled', 'true');
+            document.querySelector('.time').innerText = '00:00:00';
+            laps = [];
+            lapCounter = 1;
+            document.getElementById('lapTimes').innerHTML = '';
+        }
+
+        function updateTime() {
+            const currentTime = Date.now() - startTime;
+            const formattedTime = formatTime(currentTime);
+            document.querySelector('.time').innerText = formattedTime;
+        }
+
+        function formatTime(time) {
+            const hours = Math.floor(time / 3600000);
+            const minutes = Math.floor((time % 3600000) / 60000);
+            const seconds = Math.floor((time % 60000) / 1000);
+            const milliseconds = Math.floor(time % 1000);
+
+            return (
+                (hours < 10 ? '0' : '') + hours + ':' +
+                (minutes < 10 ? '0' : '') + minutes + ':' +
+                (seconds < 10 ? '0' : '') + seconds + '.' +
+                (milliseconds < 100 ? '0' : '') + (milliseconds < 10 ? '0' : '') + milliseconds
+            );
+        }
+
+        function recordLap() {
+            const currentTime = Date.now() - startTime;
+            const formattedTime = formatTime(currentTime);
+            laps.push({
+                lap: lapCounter,
+                time: currentTime
+            });
+            const lapTimesElement = document.getElementById('lapTimes');
+            const li = document.createElement('li');
+            li.innerText = `Lap ${lapCounter}: ${formattedTime}`;
+            lapTimesElement.appendChild(li);
+            lapCounter++;
+        }
+    </script>
+</body>
+
+</html>
